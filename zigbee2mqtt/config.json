@@ -1,6 +1,6 @@
 {
   "name": "ddc-zigbee2mqtt",
-  "version": "1.7.2",
+  "version": "1.7.1",
   "slug": "ddc-zigbee2mqtt",
   "description": "Zigbee to MQTT Bridge",
   "auto_uart": true,
@@ -142,5 +142,5 @@
       "options": "str?",
       "log": "bool?"
     }
-  },
+  }
 }

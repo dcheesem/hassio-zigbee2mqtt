@@ -1,10 +1,10 @@
 {
-  "name": "zigbee2mqtt",
+  "name": "ddc-zigbee2mqtt",
   "version": "1.7.1",
-  "slug": "zigbee2mqtt",
+  "slug": "ddc-zigbee2mqtt",
   "description": "Zigbee to MQTT Bridge",
   "auto_uart": true,
-  "url": "https://github.com/danielwelch/hassio-zigbee2mqtt",
+  "url": "https://github.com/dcheesem/hassio-zigbee2mqtt",
   "startup": "before",
   "arch": [
     "aarch64",

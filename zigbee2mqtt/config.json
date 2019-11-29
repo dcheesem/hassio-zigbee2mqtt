@@ -76,6 +76,9 @@
   },
   "schema": {
     "zigbee_shepherd_devices": "bool?",
+    "zigbee_shepherd_convert_from": "bool?",
+    "zigbee_shepherd_convert_to": "bool?",
+    "zigbee_discover": "bool?",
     "zigbee_shepherd_debug": "bool?",
     "data_path": "str",
     "devices": "str?",

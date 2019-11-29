@@ -5,6 +5,9 @@ CONFIG_PATH=/data/options.json
 DATA_PATH=$(jq --raw-output ".data_path" $CONFIG_PATH)
 ZIGBEE_SHEPHERD_DEBUG=$(jq --raw-output ".zigbee_shepherd_debug // empty" $CONFIG_PATH)
 ZIGBEE_SHEPHERD_DEVICES=$(jq --raw-output ".zigbee_shepherd_devices // empty" $CONFIG_PATH)
+ZIGBEE_SHEPHERD_CONVERT_TO=$(jq --raw-output ".zigbee_shepherd_convert_to // empty" $CONFIG_PATH)
+ZIGBEE_SHEPHERD_CONVERT_FROM=$(jq --raw-output ".zigbee_shepherd_convert_from // empty" $CONFIG_PATH)
+ZIGBEE_DISCOVER=$(jq --raw-output ".zigbee_discover // empty" $CONFIG_PATH)
 
 # Check if config exists already
 mkdir -p $DATA_PATH
@@ -17,6 +20,25 @@ if [[ -f $DATA_PATH/configuration.yaml ]]; then
     fi
 fi
 
+#
+# Override a file with a local copy from DATA_PATH
+override_file() {
+    local testFlag=$1
+    local filename=$2
+    local destPath=$3
+
+    if [[ ! -z "$testFlag" ]]; then
+        echo "[Info] Searching for custom $filename file in zigbee2mqtt data path..."
+    
+    	if [[ -f "$DATA_PATH"/"$filename" ]]; then
+            cp -f "$DATA_PATH"/"$filename" "$destPath"/"$filename"
+        else
+            echo "[Error] File $DATA_PATH/$filename not found! Starting with default $filename"
+        fi
+    fi
+
+}
+
 # Parse config
 cat "$CONFIG_PATH" | jq 'del(.data_path)' | jq 'del(.zigbee_shepherd_debug)' | jq 'del(.zigbee_shepherd_devices)' | jq 'del(.socat)' > $DATA_PATH/configuration.yaml
 
@@ -25,14 +47,10 @@ if [[ ! -z "$ZIGBEE_SHEPHERD_DEBUG" ]]; then
     export DEBUG="zigbee-shepherd*"
 fi
 
-if [[ ! -z "$ZIGBEE_SHEPHERD_DEVICES" ]]; then
-    echo "[Info] Searching for custom devices file in zigbee2mqtt data path..." 
-    if [[ -f "$DATA_PATH"/devices.js ]]; then
-        cp -f "$DATA_PATH"/devices.js ./node_modules/zigbee-herdsman-converters/devices.js
-    else
-        echo "[Error] File $DATA_PATH/devices.js not found! Starting with default devices.js"
-    fi
-fi
+override_file "$ZIGBEE_SHEPHERD_DEVICES" "devices.js" "./node_modules/zigbee-herdsman-converters"
+override_file "$ZIGBEE_SHEPHERD_CONVERT_TO" "toZigbee.js" "./node_modules/zigbee-herdsman-converters/converters"
+override_file "$ZIGBEE_SHEPHERD_CONVERT_FROM" "fromZigbee.js" "./node_modules/zigbee-herdsman-converters/converters"
+override_file "$ZIGBEE_DISCOVER" "homeassistant.js" "./lib/extension"
 
 # FORK SOCAT IN A SEPARATE PROCESS IF ENABLED
 SOCAT_EXEC="$(dirname $0)/socat.sh"
